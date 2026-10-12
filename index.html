@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Test your memory of Harry Potter quotes with shuffled flashcards.">
+  <title>Potter Quotes — Flashcards</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main aria-label="Quote flashcards">
+    <button class="card" id="card" type="button" disabled aria-describedby="hint">
+      <span id="front" class="face"><span id="quote">Loading…</span></span>
+      <span id="back" class="face" hidden><span id="person"></span><span id="book"></span><span id="chapter"></span></span>
+    </button>
+    <div class="controls"><span id="hint">click to flip</span><button id="next" disabled>next →</button></div>
+    <noscript>Enable JavaScript to use the flashcards.</noscript>
+  </main>
+</body>
+</html>
