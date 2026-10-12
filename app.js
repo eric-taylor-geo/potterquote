@@ -32,19 +32,27 @@ function parseCSV(text) {
 
 const byId = id => document.getElementById(id);
 let quotes = [], deck = [], position = 0, revealed = false;
+const history = [];
+let historyPosition = -1;
 
 function flip() {
   if (!deck.length) return;
   revealed = !revealed;
-  byId('front').hidden = revealed;
-  byId('back').hidden = !revealed;
+  byId('card').classList.toggle('is-flipped', revealed);
+  byId('front').setAttribute('aria-hidden', String(revealed));
+  byId('back').setAttribute('aria-hidden', String(!revealed));
 }
 
 function render() {
-  const current = deck[position];
+  const current = history[historyPosition];
+  // Deal the next card face up without animating through its answer.
+  const card = byId('card');
+  card.classList.add('is-resetting');
   revealed = true;
   flip();
   for (const [id, key] of [['quote', 'quote'], ['person', 'who'], ['book', 'book'], ['chapter', 'chapter']]) byId(id).textContent = current[key];
+  void card.offsetWidth;
+  card.classList.remove('is-resetting');
 }
 
 function shuffle() {
@@ -56,21 +64,37 @@ function shuffle() {
   }
   if (deck.length > 1 && deck[0] === previous) [deck[0], deck[1]] = [deck[1], deck[0]];
   position = 0;
-  render();
 }
 
 function next() {
   if (!deck.length) return;
-  if (position + 1 === deck.length) shuffle();
-  else { position++; render(); }
+  if (historyPosition + 1 < history.length) {
+    historyPosition++;
+  } else {
+    if (position + 1 === deck.length) shuffle();
+    else position++;
+    history.push(deck[position]);
+    historyPosition++;
+  }
+  render();
+}
+
+function previous() {
+  if (historyPosition <= 0) return;
+  historyPosition--;
+  render();
 }
 
 byId('card').addEventListener('click', flip);
 byId('next').addEventListener('click', next);
 document.addEventListener('keydown', event => {
-  if (event.target.closest('select, input, textarea') || event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
-  if (event.code === 'Space' && !event.target.closest('button, a')) { event.preventDefault(); flip(); }
-  if (event.key === 'ArrowRight') { event.preventDefault(); next(); }
+  if (event.target.closest('select, input, textarea, [contenteditable]:not([contenteditable="false"])') || event.altKey || event.ctrlKey || event.metaKey) return;
+  const action = event.code === 'Space' ? flip
+    : event.key === 'Enter' || event.key === 'ArrowRight' ? next
+    : event.key === 'Backspace' ? previous : null;
+  if (!action) return;
+  event.preventDefault();
+  if (!event.repeat) action();
 });
 
 async function init() {
@@ -80,6 +104,9 @@ async function init() {
     quotes = parseCSV(await response.text());
     if (!quotes.length) throw new Error('The quote collection is empty.');
     shuffle();
+    history.push(deck[position]);
+    historyPosition = 0;
+    render();
     for (const id of ['card', 'next']) byId(id).disabled = false;
   } catch (error) {
     byId('quote').textContent = 'The quote collection could not be loaded.';

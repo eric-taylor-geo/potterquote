@@ -11,11 +11,13 @@
 </head>
 <body>
   <main aria-label="Quote flashcards">
-    <button class="card" id="card" type="button" disabled aria-describedby="hint">
-      <span id="front" class="face"><span id="quote">Loading…</span></span>
-      <span id="back" class="face" hidden><span id="person"></span><span id="book"></span><span id="chapter"></span></span>
+    <button class="card" id="card" type="button" disabled aria-describedby="hint" aria-keyshortcuts="Space">
+      <span class="card-inner">
+        <span id="front" class="face"><span id="quote">Loading…</span></span>
+        <span id="back" class="face" aria-hidden="true"><span id="person"></span><span id="book"></span><span id="chapter"></span></span>
+      </span>
     </button>
-    <div class="controls"><span id="hint">click to flip</span><button id="next" disabled>next →</button></div>
+    <div class="controls"><span id="hint">click to flip</span><button id="next" disabled aria-keyshortcuts="Enter ArrowRight">next →</button></div>
     <noscript>Enable JavaScript to use the flashcards.</noscript>
   </main>
 </body>
